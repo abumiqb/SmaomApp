@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -24,8 +25,9 @@ public class MainActivity extends AppCompatActivity
 {
     private DBhjelp dbhjelp;
     private ListView visliste;
+    private ImageView logo;
+    private TextView tekst;
     private ArrayAdapter<String> arrayAP;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -34,6 +36,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         dbhjelp = new DBhjelp(this);
         visliste = (ListView)findViewById(R.id.liste);
+        logo = (ImageView)findViewById(R.id.logo);
+        tekst = (TextView)findViewById(R.id.textView2);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
         oppdater();
@@ -45,50 +49,60 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view)
             {
                 dialog();
+
             }
         });
     }
 
     private void oppdater()
     {
-        ArrayList<String> taskList = new ArrayList<>();
+        ArrayList<String> liste = new ArrayList<>();
         SQLiteDatabase db = dbhjelp.getReadableDatabase();
-        Cursor cursor = db.query(DBinfo.Nyoppgave.TABELL,
-                new String[]{DBinfo.Nyoppgave._ID, DBinfo.Nyoppgave.KOL},
-                null, null, null, null, null);
-        while(cursor.moveToNext()) {
+        Cursor cursor = db.query(DBinfo.Nyoppgave.TABELL, new String[]{DBinfo.Nyoppgave._ID, DBinfo.Nyoppgave.KOL}, null, null, null, null, null);
+
+        while(cursor.moveToNext())
+        {
             int idx = cursor.getColumnIndex(DBinfo.Nyoppgave.KOL);
-            taskList.add(cursor.getString(idx));
+            liste.add(cursor.getString(idx));
+            logo.setVisibility(View.INVISIBLE);
+            tekst.setVisibility(View.INVISIBLE);
+
         }
         if (arrayAP == null)
         {
-            arrayAP = new ArrayAdapter<>(this,
-                    R.layout.content_main,
-                    R.id.textView,
-                    taskList);
+            logo.setVisibility(View.VISIBLE);
+            tekst.setVisibility(View.VISIBLE);
+            arrayAP = new ArrayAdapter<>(this, R.layout.content_main, R.id.textView, liste);
             visliste.setAdapter(arrayAP);
-        } else {
+        }
+        else
+        {
             arrayAP.clear();
-            arrayAP.addAll(taskList);
+            arrayAP.addAll(liste);
             arrayAP.notifyDataSetChanged();
         }
+
+        if (liste.isEmpty())
+        {
+            logo.setVisibility(View.VISIBLE);
+            tekst.setVisibility(View.VISIBLE);
+        }
+
         cursor.close();
-        db.close();
+            db.close();
     }
 
-    public void ferdig(View view)
+  public void ferdig(View view)
     {
         View parent=(View) view.getParent();
         TextView taskview = (TextView) parent.findViewById(R.id.textView);
-        String task= String.valueOf(taskview.getText());
+        String oppg = String.valueOf(taskview.getText());
         SQLiteDatabase db = dbhjelp.getWritableDatabase();
-        db.delete(DBinfo.Nyoppgave.TABELL,
-                DBinfo.Nyoppgave.KOL + " = ?",
-                new String[]{task});
+        db.delete(DBinfo.Nyoppgave.TABELL, DBinfo.Nyoppgave.KOL + " = ?", new String[]{oppg});
+        oppdater();
         db.close();
         oppdater();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -109,23 +123,25 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-
     public void dialog()
     {
-        final EditText taskEditText = new EditText(this);
+        final EditText tekst = new EditText(this);
+
+
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Legg til nytt gjøremål")
                 .setMessage("Hva vil du gjøre")
-                .setView(taskEditText)
+                .setView(tekst)
+
                 .setPositiveButton("Legg til", new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        String task = String.valueOf(taskEditText.getText());
+                        String oppgave = String.valueOf(tekst.getText());
                         SQLiteDatabase db = dbhjelp.getReadableDatabase();
-                        ContentValues values=new ContentValues();
-                        values.put(DBinfo.Nyoppgave.KOL,task);
+                        ContentValues values = new ContentValues();
+                        values.put(DBinfo.Nyoppgave.KOL,oppgave);
                         db.insertWithOnConflict(DBinfo.Nyoppgave.TABELL,null,values,SQLiteDatabase.CONFLICT_REPLACE);
                         db.close();
                         oppdater();
