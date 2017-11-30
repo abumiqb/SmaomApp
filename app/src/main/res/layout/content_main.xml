@@ -15,15 +15,14 @@
         android:text="TextView"
         android:textSize="16sp" />
 
-    <Button
-        android:id="@+id/Ferdig"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView"
-        android:layout_alignBottom="@+id/textView"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="27dp"
-        android:onClick="ferdig"
-        android:text="Ferdig" />
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@drawable/pluss"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/textView" />
 
 </RelativeLayout>

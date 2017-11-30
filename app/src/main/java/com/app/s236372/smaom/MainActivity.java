@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         oppdater();
 
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener()
         {
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+
 
     private void oppdater()
     {
@@ -101,7 +105,42 @@ public class MainActivity extends AppCompatActivity
         db.delete(DBinfo.Nyoppgave.TABELL, DBinfo.Nyoppgave.KOL + " = ?", new String[]{oppg});
         oppdater();
         db.close();
-        oppdater();
+    }
+
+    public void update(View view)
+    {
+        View parent=(View) view.getParent();
+        final TextView taskview = (TextView) parent.findViewById(R.id.textView);
+        final String oppg = String.valueOf(taskview.getText());
+
+        final EditText tekst = new EditText(this);
+        tekst.setText(taskview.getText());
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Endre på gjøremål")
+                .setMessage("Hva vil du gjøre?")
+                .setView(tekst)
+
+                .setPositiveButton("Oppdater", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        SQLiteDatabase db = dbhjelp.getWritableDatabase();
+                        ContentValues values = new ContentValues();
+                        String nyVerdi = tekst.getText().toString();
+                        values.put("Tittel", nyVerdi);
+                        taskview.setText(nyVerdi);
+                        System.out.println("Nyverdi: " + nyVerdi);
+                        db.update(DBinfo.Nyoppgave.TABELL, values, DBinfo.Nyoppgave.KOL + " = ?", new String[]{oppg});
+                        oppdater();
+                        db.close();
+                    }
+                })
+                .setNegativeButton("Tilbake", null)
+                .create();
+        dialog.show();
+
     }
 
     @Override
@@ -126,8 +165,6 @@ public class MainActivity extends AppCompatActivity
     public void dialog()
     {
         final EditText tekst = new EditText(this);
-
-
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Legg til nytt gjøremål")
                 .setMessage("Hva vil du gjøre")
@@ -151,4 +188,5 @@ public class MainActivity extends AppCompatActivity
                 .create();
         dialog.show();
     }
+
 }
