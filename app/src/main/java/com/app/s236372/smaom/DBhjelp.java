@@ -15,9 +15,7 @@ public class DBhjelp extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        String createTable = "CREATE TABLE " + DBinfo.Nyoppgave.TABELL + " ( " +
-                DBinfo.Nyoppgave._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                DBinfo.Nyoppgave.KOL + " TEXT NOT NULL);" ;
+        String createTable = "CREATE TABLE " + DBinfo.Nyoppgave.TABELL + " ( " + DBinfo.Nyoppgave._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DBinfo.Nyoppgave.KOL + " TEXT NOT NULL " + DBinfo.Nyoppgave.DATO + " TEXT NOT NULL  );" ;
         db.execSQL(createTable);
     }
 

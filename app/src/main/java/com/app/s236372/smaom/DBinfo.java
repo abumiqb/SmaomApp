@@ -11,8 +11,7 @@ public class DBinfo
     {
         public static final String TABELL = "oppgave";
         public static final String KOL = "Tittel";
-        public static final String DATO = "Dato";
-
+        public static final String DATO = "dato";
 
     }
 }

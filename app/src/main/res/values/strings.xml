@@ -2,4 +2,5 @@
     <string name="app_name">Smaom</string>
     <string name="action_settings">Instillinger</string>
     <string name="tekst">Trykk på pluss tasten for å legge til en notat</string>
+    <string name="descr_overflow_button">Test</string>
 </resources>

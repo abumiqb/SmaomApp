@@ -9,11 +9,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -27,7 +27,10 @@ public class MainActivity extends AppCompatActivity
     private ListView visliste;
     private ImageView logo;
     private TextView tekst;
+    private TextView sub;
     private ArrayAdapter<String> arrayAP;
+    private ArrayAdapter<String> arrayAP1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -38,25 +41,22 @@ public class MainActivity extends AppCompatActivity
         visliste = (ListView)findViewById(R.id.liste);
         logo = (ImageView)findViewById(R.id.logo);
         tekst = (TextView)findViewById(R.id.textView2);
+        sub = (TextView)findViewById(R.id.tekstElementSub);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
         oppdater();
 
-
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
                 dialog();
-
             }
         });
     }
-
-
 
     private void oppdater()
     {
@@ -68,38 +68,37 @@ public class MainActivity extends AppCompatActivity
         {
             int idx = cursor.getColumnIndex(DBinfo.Nyoppgave.KOL);
             liste.add(cursor.getString(idx));
-            logo.setVisibility(View.INVISIBLE);
-            tekst.setVisibility(View.INVISIBLE);
-
         }
         if (arrayAP == null)
         {
-            logo.setVisibility(View.VISIBLE);
-            tekst.setVisibility(View.VISIBLE);
-            arrayAP = new ArrayAdapter<>(this, R.layout.content_main, R.id.textView, liste);
+            logo.setVisibility(View.INVISIBLE);
+            tekst.setVisibility(View.INVISIBLE);
+            arrayAP = new ArrayAdapter<>(this, R.layout.content_main, R.id.tekstElement, liste);
             visliste.setAdapter(arrayAP);
+
         }
         else
         {
             arrayAP.clear();
             arrayAP.addAll(liste);
             arrayAP.notifyDataSetChanged();
+
         }
 
         if (liste.isEmpty())
         {
-            logo.setVisibility(View.VISIBLE);
-            tekst.setVisibility(View.VISIBLE);
+            //logo.setVisibility(View.VISIBLE);
+            //tekst.setVisibility(View.VISIBLE);
         }
 
         cursor.close();
             db.close();
     }
 
-  public void ferdig(View view)
+    public void ferdig(View view)
     {
         View parent=(View) view.getParent();
-        TextView taskview = (TextView) parent.findViewById(R.id.textView);
+        TextView taskview = (TextView) parent.findViewById(R.id.tekstElement);
         String oppg = String.valueOf(taskview.getText());
         SQLiteDatabase db = dbhjelp.getWritableDatabase();
         db.delete(DBinfo.Nyoppgave.TABELL, DBinfo.Nyoppgave.KOL + " = ?", new String[]{oppg});
@@ -110,7 +109,7 @@ public class MainActivity extends AppCompatActivity
     public void update(View view)
     {
         View parent=(View) view.getParent();
-        final TextView taskview = (TextView) parent.findViewById(R.id.textView);
+        final TextView taskview = (TextView) parent.findViewById(R.id.tekstElement);
         final String oppg = String.valueOf(taskview.getText());
 
         final EditText tekst = new EditText(this);
@@ -140,7 +139,6 @@ public class MainActivity extends AppCompatActivity
                 .setNegativeButton("Tilbake", null)
                 .create();
         dialog.show();
-
     }
 
     @Override
@@ -164,7 +162,10 @@ public class MainActivity extends AppCompatActivity
 
     public void dialog()
     {
+        /*
         final EditText tekst = new EditText(this);
+        final EditText tekst1 = new EditText(this);
+
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Legg til nytt gjøremål")
                 .setMessage("Hva vil du gjøre")
@@ -187,6 +188,42 @@ public class MainActivity extends AppCompatActivity
                 .setNegativeButton("Tilbake", null)
                 .create();
         dialog.show();
-    }
+        */
 
+        LayoutInflater factory = LayoutInflater.from(this);
+        final View textEntryView = factory.inflate(R.layout.dialog_boks, null);
+        final EditText input1 = (EditText) textEntryView.findViewById(R.id.editText1);
+        final EditText input2 = (EditText) textEntryView.findViewById(R.id.editText2);
+        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setIcon(R.drawable.pluss)
+                .setTitle("Legg til gjøremål:")
+                .setView(textEntryView)
+                .setPositiveButton("Save",
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int whichButton)
+                            {
+                                String oppgave = String.valueOf(input1.getText());
+                                String datoo = String.valueOf(input2.getText());
+                                SQLiteDatabase db = dbhjelp.getReadableDatabase();
+                                ContentValues values = new ContentValues();
+                                values.put(DBinfo.Nyoppgave.KOL,oppgave);
+                                db.insertWithOnConflict(DBinfo.Nyoppgave.TABELL,null,values,SQLiteDatabase.CONFLICT_REPLACE);
+
+
+                                db.close();
+                                oppdater();
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int whichButton)
+                            {
+                                //Ikke gjør noenting.
+                            }
+                        });
+        alert.show();
+    }
 }
