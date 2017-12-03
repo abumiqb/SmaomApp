@@ -27,9 +27,7 @@ public class MainActivity extends AppCompatActivity
     private ListView visliste;
     private ImageView logo;
     private TextView tekst;
-    private TextView sub;
     private ArrayAdapter<String> arrayAP;
-    private ArrayAdapter<String> arrayAP1;
 
 
     @Override
@@ -41,13 +39,10 @@ public class MainActivity extends AppCompatActivity
         visliste = (ListView)findViewById(R.id.liste);
         logo = (ImageView)findViewById(R.id.logo);
         tekst = (TextView)findViewById(R.id.textView2);
-        sub = (TextView)findViewById(R.id.tekstElementSub);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
         oppdater();
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-
         fab.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -71,24 +66,26 @@ public class MainActivity extends AppCompatActivity
         }
         if (arrayAP == null)
         {
-            logo.setVisibility(View.INVISIBLE);
-            tekst.setVisibility(View.INVISIBLE);
             arrayAP = new ArrayAdapter<>(this, R.layout.content_main, R.id.tekstElement, liste);
             visliste.setAdapter(arrayAP);
-
         }
         else
         {
             arrayAP.clear();
             arrayAP.addAll(liste);
             arrayAP.notifyDataSetChanged();
-
         }
 
-        if (liste.isEmpty())
+        if (arrayAP.isEmpty())
         {
-            //logo.setVisibility(View.VISIBLE);
-            //tekst.setVisibility(View.VISIBLE);
+            logo.setVisibility(View.VISIBLE);
+            tekst.setVisibility(View.VISIBLE);
+        }
+
+        if (!arrayAP.isEmpty())
+        {
+            logo.setVisibility(View.INVISIBLE);
+            tekst.setVisibility(View.INVISIBLE);
         }
 
         cursor.close();
@@ -141,28 +138,8 @@ public class MainActivity extends AppCompatActivity
         dialog.show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings)
-        {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     public void dialog()
     {
-        /*
         final EditText tekst = new EditText(this);
         final EditText tekst1 = new EditText(this);
 
@@ -188,42 +165,5 @@ public class MainActivity extends AppCompatActivity
                 .setNegativeButton("Tilbake", null)
                 .create();
         dialog.show();
-        */
-
-        LayoutInflater factory = LayoutInflater.from(this);
-        final View textEntryView = factory.inflate(R.layout.dialog_boks, null);
-        final EditText input1 = (EditText) textEntryView.findViewById(R.id.editText1);
-        final EditText input2 = (EditText) textEntryView.findViewById(R.id.editText2);
-        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-        alert.setIcon(R.drawable.pluss)
-                .setTitle("Legg til gjøremål:")
-                .setView(textEntryView)
-                .setPositiveButton("Save",
-                        new DialogInterface.OnClickListener()
-                        {
-                            public void onClick(DialogInterface dialog, int whichButton)
-                            {
-                                String oppgave = String.valueOf(input1.getText());
-                                String datoo = String.valueOf(input2.getText());
-                                SQLiteDatabase db = dbhjelp.getReadableDatabase();
-                                ContentValues values = new ContentValues();
-                                values.put(DBinfo.Nyoppgave.KOL,oppgave);
-                                db.insertWithOnConflict(DBinfo.Nyoppgave.TABELL,null,values,SQLiteDatabase.CONFLICT_REPLACE);
-
-
-                                db.close();
-                                oppdater();
-                            }
-                        })
-                .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener()
-                        {
-                            public void onClick(DialogInterface dialog, int whichButton)
-                            {
-                                //Ikke gjør noenting.
-                            }
-                        });
-        alert.show();
     }
 }
